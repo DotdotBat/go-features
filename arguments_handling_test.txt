@@ -1,0 +1,66 @@
+package features
+
+import (
+	"reflect"
+	"testing"
+)
+// https://gobyexample.com/command-line-flags
+// In your codebase, you might implement something like:
+// func ParseArgs(args []string) (JSONConfig, error)
+
+func TestParseArgs_NoArguments_UsesDefaults(t *testing.T) {
+	args := []string{"myapp"}
+
+	cfg, err := ParseArgs(args)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Assert defaults (whatever you decide them to be)
+	if cfg.Port != 8080 { // example default
+		t.Errorf("expected default port 8080, got %d", cfg.Port)
+	}
+	if cfg.Enabled != false {
+		t.Errorf("expected Enabled=false by default, got %v", cfg.Enabled)
+	}
+}
+
+func TestParseArgs_SetPortFlag(t *testing.T) {
+	args := []string{"myapp", "--port", "9090"}
+
+	cfg, err := ParseArgs(args)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if cfg.Port != 9090 {
+		t.Errorf("expected port 9090, got %d", cfg.Port)
+	}
+}
+
+func TestParseArgs_EnableFeatureFlag(t *testing.T) {
+	args := []string{"myapp", "--enabled"}
+
+	cfg, err := ParseArgs(args)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if cfg.Enabled != true {
+		t.Errorf("expected Enabled=true, got %v", cfg.Enabled)
+	}
+}
+
+func TestParseArgs_SetMultipleFeatures(t *testing.T) {
+	args := []string{"myapp", "--features", "f1,f2,f3"}
+
+	cfg, err := ParseArgs(args)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := []string{"f1", "f2", "f3"}
+	if !reflect.DeepEqual(cfg.Features, expected) {
+		t.Errorf("expected Features %v, got %v", expected, cfg.Features)
+	}
+}
