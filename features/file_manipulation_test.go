@@ -31,3 +31,27 @@ func TestCanDeleteFile(t *testing.T) {
 	}
 
 }
+
+func TestCanMoveFile(t *testing.T) {
+	sourceDir := t.TempDir()
+	targetDir := t.TempDir()
+	filename := "move"
+	sourceFilename := filepath.Join(sourceDir, filename)
+	targetFilename := filepath.Join(targetDir, filename)
+	err := os.WriteFile(sourceFilename, []byte("a file to be moved"), 0666)
+	if err != nil {
+		panic(err)
+	}
+	err = os.Rename(sourceFilename, targetFilename)
+	if err != nil {
+		panic(err)
+	}
+	_, err = os.Stat(sourceFilename)
+	if !os.IsNotExist(err) {
+		t.Fatal("file still exists in source directory after move", sourceFilename)
+	}
+	_, err = os.Stat(targetFilename)
+	if os.IsNotExist(err) {
+		t.Fatal("File doesn't exists in the target directory after move")
+	}
+}
